@@ -13,7 +13,7 @@
 
 #include "../../server/baseapp/baseapp_interface.h"
 #include "../../server/cellapp/cellapp_interface.h"
-
+#include "EntityDef.h"
 #ifndef CODE_INLINE
 #include "entitycallabstract.inl"
 #endif
