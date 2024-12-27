@@ -359,6 +359,10 @@ typedef KBEUnordered_map< std::string, std::string >			SPACE_DATA;												//
 
 /*---------------------------------------------------------------------------------
 	定会多种平台上的多线程相关
+
+CRITICAL_SECTION 是 Windows 特有的轻量级互斥锁，不支持递归锁。
+pthread_mutex_t 是 POSIX 标准的互斥锁，支持多种类型，包括递归锁。
+std::mutex 是 C++ 标准库中的互斥锁，跨平台，不支持递归锁，但可以通过 std::recursive_mutex 实现递归锁。
 ---------------------------------------------------------------------------------*/
 #if KBE_PLATFORM == PLATFORM_WIN32
 	#define THREAD_ID											HANDLE										//在 Windows 中，线程标识符是一个 HANDLE 类型。HANDLE 是一个指向内核对象的句柄

@@ -9,7 +9,9 @@
 
 namespace KBEngine { 
 
-
+/**
+* 该类使用 OpenSSL 库中的 Blowfish 加密算法来实现加密和解密功能
+*/
 class KBEBlowfish
 {
 public:
@@ -29,22 +31,22 @@ public:
 	KBEBlowfish(const Key & key);
 	KBEBlowfish(int keySize = DEFAULT_KEY_SIZE);
 
-	const Key & key() const { return key_; }
-	const char * strBlowFishKey() const;
+	const Key & key() const { return key_; }	//返回当前使用的密钥
+	const char * strBlowFishKey() const;		//返回密钥的字符串表示
 	bool isGood() const { return isGood_; }
 
-	int encrypt(const unsigned char * src, unsigned char * dest, int length);
+	int encrypt(const unsigned char * src, unsigned char * dest, int length);	//对指定的数据进行加密
 	int decrypt(const unsigned char * src, unsigned char * dest, int length);
 
-	BF_KEY * pBlowFishKey() { return (BF_KEY*)pBlowFishKey_; }
+	BF_KEY * pBlowFishKey() { return (BF_KEY*)pBlowFishKey_; }	//返回指向 BF_KEY 结构的指针
 protected:
-	bool init();
+	bool init();		//初始化对象，设置密钥等
 
-	Key key_;
-	int keySize_;
-	bool isGood_;
+	Key key_;			//存储加密密钥的字符串
+	int keySize_;		//密钥的大小（以字节为单位）
+	bool isGood_;		//表示对象是否初始化成功
 
-	void * pBlowFishKey_;
+	void * pBlowFishKey_;	//指向 OpenSSL 中 BF_KEY 结构的指针，用于存储 Blowfish 算法的密钥信息
 };
 
 }

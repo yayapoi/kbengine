@@ -88,3 +88,22 @@ KBEngine
 	理论上只需要不断扩展硬件就能够不断增加承载上限，单台机器的承载上限取决于游戏逻辑本身的复杂度。)
 
 
+dependencies
+	hiredis: c 链接 redis.
+	log4cxx: 日志
+	openssl
+	python
+	fmt:     格式化字符串
+	jwsmtp:  C++编写的发送邮件的库
+	libcurl
+	tmxparser: tiled地图编辑器 生成的map地图信息，tmxparser是一个c++库解析这种文件
+	zlib
+libs
+	common: 
+
+	vld  visual leak dector  内存泄漏检测工具\
+	g3dlite  三维计算 box plane matrix vector3 vector4 triangle 等
+	apr  apache portable runtime liarary 主要为上层应用程序提供一个可以跨越多操作系统平台使用的底层支持接口库
+	sigar  System Information Gatherer And Reporter
+
+

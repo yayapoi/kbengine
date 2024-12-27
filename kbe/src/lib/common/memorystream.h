@@ -31,10 +31,10 @@ class MemoryStreamException
 		}
 
     private:
-        bool 		_m_add;
-        size_t 		_m_pos;
-        size_t 		_m_opsize;
-        size_t 		_m_size;
+        bool 		_m_add;     //表示是写操作还是读操作
+        size_t 		_m_pos;     //当前操作的位置
+        size_t 		_m_opsize;  //操作的大小
+        size_t 		_m_size;    //内存流的大小
 };
 
 class MemoryStreamWriteOverflow
@@ -58,9 +58,9 @@ public:
 	}
 
 private:
-	size_t 		_m_wpos;
-	size_t 		_m_writeSize;
-	size_t 		_m_size;
+	size_t 		_m_wpos;        //写操作的位置
+	size_t 		_m_writeSize;   //写操作的大小
+	size_t 		_m_size;        //内存流的大小
 };
 
 /*
@@ -87,7 +87,7 @@ private:
 class MemoryStream : public PoolObject
 {
 public:
-	union PackFloatXType
+	union PackFloatXType    //用于在浮点数和整数之间进行转换
 	{
 		float	fv;
 		uint32	uv;
@@ -95,19 +95,25 @@ public:
 	};
 
 public:
+    //获取对象池
 	static ObjectPool<MemoryStream>& ObjPool();
+    //从对象池中创建对象
 	static MemoryStream* createPoolObject(const std::string& logPoint);
+    //回收对象到对象池
 	static void reclaimPoolObject(MemoryStream* obj);
 	static void destroyObjPool();
 
 	typedef KBEShared_ptr< SmartPoolObject< MemoryStream > > SmartPoolObjectPtr;
+    //创建智能指针对象
 	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 
+    //获取对象占用的字节数
 	virtual size_t getPoolObjectBytes();
+    //对象被回收时的回调
 	virtual void onReclaimObject();
 
-    const static size_t DEFAULT_SIZE = 0x100;
-	const static size_t MAX_SIZE = 10000000;
+    const static size_t DEFAULT_SIZE = 0x100;   //默认大小为 256 字节
+	const static size_t MAX_SIZE = 10000000;    //最大大小为 10000000 字节
 
     MemoryStream(): rpos_(0), wpos_(0)
     {
@@ -124,6 +130,7 @@ public:
 	
 	virtual ~MemoryStream();
 	
+    //清除数据，可选择是否清空内部数据
     void clear(bool clearData)
     {
     	if(clearData)
@@ -132,18 +139,21 @@ public:
         rpos_ = wpos_ = 0;
     }
 
+    //追加一个值到内存流中，进行字节序转换
     template <typename T> void append(T value)
     {
         EndianConvert(value);
         append((uint8 *)&value, sizeof(value));
     }
 
+    //在指定位置写入一个值，进行字节序转换
     template <typename T> void put(size_t pos,T value)
     {
         EndianConvert(value);
         put(pos,(uint8 *)&value,sizeof(value));
     }
 	
+    //交换两个内存流的数据
 	void swap(MemoryStream & s)
 	{
 		size_t rpos = s.rpos(), wpos = s.wpos();
@@ -359,8 +369,10 @@ public:
         return read<uint8>(pos);
     }
 
+    //获取读位置
     size_t rpos() const { return rpos_; }
 
+    //设置读位置
     size_t rpos(int rpos)
     {
 		if(rpos < 0)
@@ -370,8 +382,10 @@ public:
         return rpos_;
     }
 
+    ///获取写位置
     size_t wpos() const { return wpos_; }
 
+    //设置写位置
     size_t wpos(int wpos)
     {
 		if(wpos < 0)
@@ -384,6 +398,7 @@ public:
     template<typename T>
     void read_skip() { read_skip(sizeof(T)); }
 
+    //跳过指定长度的数据
     void read_skip(size_t skip)
     {
         if(skip > length())
@@ -392,6 +407,7 @@ public:
         rpos_ += skip;
     }
 
+    //读取一个值
     template <typename T> T read()
     {
         T r = read<T>(rpos_);
@@ -399,6 +415,7 @@ public:
         return r;
     }
 
+    //从指定位置读取一个值
     template <typename T> T read(size_t pos) const
     {
         if(sizeof(T) > length())
@@ -409,6 +426,7 @@ public:
         return val;
     }
 
+    //读取指定长度的数据到目标缓冲区
     void read(uint8 *dest, size_t len)
     {
         if(len > length())
@@ -418,6 +436,7 @@ public:
         rpos_ += len;
     }
 
+    //读取一个二进制块到字符串中
 	ArraySize readBlob(std::string& datas)
 	{
 		if(length() <= 0)
@@ -437,6 +456,7 @@ public:
 		return rsize;
 	}
 
+    //读取打包的 XYZ 坐标
 	void readPackXYZ(float& x, float&y, float& z, float minf = -256.f)
 	{
 		uint32 packed = 0;
@@ -450,6 +470,7 @@ public:
 		z += minf;
 	}
 
+    //读取打包的 XZ 坐标
 	void readPackXZ(float& x, float& z)
 	{
 		PackFloatXType & xPackData = (PackFloatXType&)x;
@@ -483,6 +504,7 @@ public:
 		zPackData.uv |= (data & 0x000800) << 20;
 	}
 
+    //读取打包的 Y 坐标
 	void readPackY(float& y)
 	{
 		PackFloatXType yPackData; 
@@ -496,6 +518,7 @@ public:
 		y = yPackData.fv;
 	}
 
+    //获取内部数据的指针
     uint8 *data() { return &data_[0]; }
 	const uint8 *data() const { return &data_[0]; }
 	
@@ -514,6 +537,7 @@ public:
 	// 将读索引强制设置到写索引，表示操作结束
 	void done(){ read_skip(length()); }
 
+    //调整内存流的大小
     void resize(size_t newsize)
     {
     	KBE_ASSERT(newsize <= MAX_SIZE);
@@ -522,12 +546,14 @@ public:
         wpos_ = size();
     }
 
+    //调整内部数据的大小
     void data_resize(size_t newsize)
     {
     	KBE_ASSERT(newsize <= MAX_SIZE);
         data_.resize(newsize);
     }
 
+    //预留指定大小的内存
     void reserve(size_t ressize)
     {
     	KBE_ASSERT(ressize <= MAX_SIZE);
@@ -536,6 +562,7 @@ public:
             data_.reserve(ressize);
     }
 
+    //追加一个二进制块
     void appendBlob(const char *src, ArraySize cnt)
     {
         (*this) << cnt;
@@ -544,6 +571,7 @@ public:
 			append(src, cnt);
     }
 
+    //追加一个字符串
 	void appendBlob(const std::string& datas)
     {
 		ArraySize len = (ArraySize)datas.size();
@@ -724,7 +752,7 @@ public:
         memcpy(&data_[pos], src, cnt);
     }
 
-	/** 输出流数据 */
+	/* 输出流数据 */
     void print_storage() const
     {
 		char buf[1024];
@@ -746,7 +774,7 @@ public:
 		rpos_ = trpos;
     }
 
-	/** 输出流数据字符串 */
+	/* 输出流数据字符串 */
     void textlike() const
     {
 		char buf[1024];

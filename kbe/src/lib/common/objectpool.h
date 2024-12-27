@@ -24,7 +24,7 @@ namespace KBEngine{
 #define OBJECT_POOL_REDUCING_TIME_OUT	300 * stampsPerSecondD()
 
 // 追踪对象分配处
-#define OBJECTPOOL_POINT fmt::format("{}#{}", __FUNCTION__, __LINE__).c_str() 
+#define OBJECTPOOL_POINT fmt::format("{}#{}", __FUNCTION__, __LINE__).c_str()
 
 template< typename T >
 class SmartPoolObject;
@@ -348,7 +348,7 @@ protected:
 };
 
 /*
-	池对象， 所有使用池的对象必须实现回收功能。
+	池对象， 所有使用池的对象必须实现回收功能。抽象基类，定义了池对象的基本行为
 */
 class PoolObject
 {
@@ -360,11 +360,11 @@ public:
 	}
 
 	virtual ~PoolObject(){}
-	virtual void onReclaimObject() = 0;
-	virtual void onEabledPoolObject() {
+	virtual void onReclaimObject() = 0;		//当对象被回收时调用
+	virtual void onEabledPoolObject() {		//当对象被激活时调用
 	}
 
-	virtual size_t getPoolObjectBytes()
+	virtual size_t getPoolObjectBytes()		//返回对象占用的字节数
 	{ 
 		return 0; 
 	}
@@ -378,7 +378,7 @@ public:
 		return false;
 	}
 
-	bool isEnabledPoolObject() const
+	bool isEnabledPoolObject() const	//返回对象是否处于激活状态
 	{
 		return isEnabledPoolObject_;
 	}
@@ -388,12 +388,12 @@ public:
 		isEnabledPoolObject_ = v;
 	}
 
-	void poolObjectCreatePoint(const std::string& logPoint)
+	void poolObjectCreatePoint(const std::string& logPoint)	//设置对象创建的位置
 	{
 		poolObjectCreatePoint_ = logPoint;
 	}
 
-	const std::string& poolObjectCreatePoint() const
+	const std::string& poolObjectCreatePoint() const	//返回对象创建的位置
 	{
 		return poolObjectCreatePoint_;
 	}
@@ -408,13 +408,13 @@ protected:
 };
 
 template< typename T >
-class SmartObjectPool : public ObjectPool<T>
+class SmartObjectPool : public ObjectPool<T>	//是一个模板类，用于管理特定类型的对象池
 {
 public:
 };
 
 template< typename T >
-class SmartPoolObject
+class SmartPoolObject		//是一个智能指针类，用于管理从对象池中获取的对象，并在对象生命周期结束时自动归还对象
 {
 public:
 	SmartPoolObject(T* pPoolObject, ObjectPool<T>& objectPool):
@@ -428,7 +428,7 @@ public:
 		onReclaimObject();
 	}
 
-	void onReclaimObject()
+	void onReclaimObject()			//将对象归还到池中
 	{
 		if(pPoolObject_ != NULL)
 		{
@@ -453,8 +453,8 @@ public:
 	}
 
 private:
-	T* pPoolObject_;
-	ObjectPool<T>& objectPool_;
+	T* pPoolObject_;				//指向从池中获取的对象
+	ObjectPool<T>& objectPool_;		//引用对象池
 };
 
 

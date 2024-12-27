@@ -42,7 +42,7 @@ void utf8printf(FILE *out, const char *str, ...);
 #define KBELOG_SCRIPT_DEBUG		0x00000100
 #define KBELOG_SCRIPT_WARNING	0x00000200
 #define KBELOG_SCRIPT_NORMAL	0x00000400
-
+//未知、打印、错误、警告、调试、信息、关键、脚本信息、脚本错误、脚本调试、脚本警告、脚本正常
 #define KBELOG_TYPES KBELOG_UNKNOWN | KBELOG_PRINT | KBELOG_ERROR | KBELOG_WARNING | \
 	KBELOG_DEBUG | KBELOG_INFO | KBELOG_CRITICAL | KBELOG_SCRIPT_INFO | KBELOG_SCRIPT_ERROR | KBELOG_SCRIPT_DEBUG | \
 	KBELOG_SCRIPT_WARNING | KBELOG_SCRIPT_NORMAL
@@ -109,8 +109,8 @@ public:
 	
 	static bool isInit() { return getSingletonPtr() != 0; }
 
-	static void initialize(COMPONENT_TYPE componentType);
-	static void finalise(bool destroy = false);
+	static void initialize(COMPONENT_TYPE componentType);	//初始化日志系统
+	static void finalise(bool destroy = false);		//销毁日志系统?
 
 	void setFile(std::string funcname, std::string file, uint32 line){
 		_currFile = file;
@@ -141,59 +141,59 @@ public:
 
 	void onMessage(uint32 logType, const char * str, uint32 length);
 
-	void registerLogger(Network::MessageID msgID, Network::Address* pAddr);
+	void registerLogger(Network::MessageID msgID, Network::Address* pAddr);	//注册和注销日志记录器
 	void unregisterLogger(Network::MessageID msgID, Network::Address* pAddr);
 
-	void onNoLogger();
+	void onNoLogger();		//处理没有日志记录器的情况
 
-	void changeLogger(const std::string& name);
+	void changeLogger(const std::string& name);		//切换和关闭日志记录器
 	void closeLogger();  // close logger for fork + execv
 
-	void clearBufferedLog(bool destroy = false);
+	void clearBufferedLog(bool destroy = false);	//清除缓冲的日志
 
 	void set_errorcolor();
 	void set_normalcolor();
 	void set_warningcolor();
 
-	void setScriptMsgType(int msgtype);
-	void resetScriptMsgType();
+	void setScriptMsgType(int msgtype);		//设置脚本消息类型
+	void resetScriptMsgType();				//重置脚本消息类型
 
-	void shouldWriteToSyslog(bool v = true);
+	void shouldWriteToSyslog(bool v = true);	//设置是否将日志写入系统日志
 
 	/** 
 		同步日志到logger
 	*/
 	void sync();
 
-	void printBufferedLogs();
+	void printBufferedLogs();		//打印缓冲的日志
 
-	size_t hasBufferedLogPackets() const{ return hasBufferedLogPackets_; }
+	size_t hasBufferedLogPackets() const{ return hasBufferedLogPackets_; }	//获取缓冲的日志包数量
 
-	Network::Channel* pLoggerChannel();
+	Network::Channel* pLoggerChannel();		//获取日志通道
 
-	bool canLog(int level);
+	bool canLog(int level);		//检查是否可以记录指定级别的日志
 
 private:
 	FILE* _logfile;
-	std::string _currFile, _currFuncName;
+	std::string _currFile, _currFuncName;	//当前文件、函数名和行号
 	uint32 _currLine;
 
-	Network::Address loggerAddr_;
+	Network::Address loggerAddr_;				//日志记录器的地址
 	KBEngine::thread::ThreadMutex logMutex;
 
-	std::queue< Network::Bundle* > bufferedLogPackets_;
+	std::queue< Network::Bundle* > bufferedLogPackets_;	//缓冲的日志包队列和数量
 	size_t hasBufferedLogPackets_;
 
-	Network::NetworkInterface* pNetworkInterface_;
+	Network::NetworkInterface* pNetworkInterface_;		//网络接口和事件调度器指针
 	Network::EventDispatcher* pDispatcher_;
 
-	int scriptMsgType_;
+	int scriptMsgType_;			//脚本消息类型
 
-	bool noSyncLog_;
+	bool noSyncLog_;			//是否禁止同步日志
 
-	bool canLogFile_;
+	bool canLogFile_;			//是否可以写入日志文件
 
-	uint64 loseLoggerTime_;
+	uint64 loseLoggerTime_;		//丢失日志记录器的时间
 
 	// 记录下主线程ID，用于判断是否是子线程输出日志
 	// 当子线程输出日志时，对相关日志进行缓存到主线程时再同步给logger
@@ -203,7 +203,7 @@ private:
 	THREAD_ID mainThreadID_;
 #endif
 
-	ObjectPool<MemoryStream> memoryStreamPool_;
+	ObjectPool<MemoryStream> memoryStreamPool_;						//内存流池和子线程缓冲的日志包队列
 	std::queue< MemoryStream* > childThreadBufferedLogPackets_;
 };
 

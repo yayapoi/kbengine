@@ -30,19 +30,15 @@ namespace KBEngine{ namespace thread{
 class ThreadMutexNull
 {
 public:
-	ThreadMutexNull(void)
+	ThreadMutexNull() = default;
+
+	virtual ~ThreadMutexNull() = default;
+
+	virtual void lockMutex()
 	{
 	}
 
-	virtual ~ThreadMutexNull(void)
-	{
-	}
-
-	virtual void lockMutex(void)
-	{
-	}
-
-	virtual void unlockMutex(void)
+	virtual void unlockMutex()
 	{
 	}
 };
