@@ -17,41 +17,37 @@
 #endif // _MSC_VER > 1000
 
 #include "common/platform.h"
-#include <mutex>
-#include <atomic>
 
-namespace KBEngine{
-	
-template <typename T> 
-class Singleton
-{
-protected:
-	static std::atomic<T*> singleton_;
-	static std::once_flag init_flag;
+namespace KBEngine {
 
-public:
-	Singleton(void)
+	template <typename T>
+	class Singleton
 	{
-		assert(!singleton_);
+	protected:
+		static T* singleton_;
+
+	public:
+		Singleton(void)
+		{
+			assert(!singleton_);
 #if defined(_MSC_VER) && _MSC_VER < 1200	 
-		int offset = (int)(T*)1 - (int)(Singleton <T>*)(T*)1;
-		singleton_ = (T*)((int)this + offset);
+			int offset = (int)(T*)1 - (int)(Singleton <T>*)(T*)1;
+			singleton_ = (T*)((int)this + offset);
 #else
-		//singleton_ = static_cast< T* >(this);
-		std::call_once(init_flag, [] { singleton_ = new T(); });
+			singleton_ = static_cast<T*>(this);
+			//std::call_once(init_flag, [] { singleton_ = new T(); });
 #endif
-	}
-	
-	
-	~Singleton(void){  assert(singleton_);  delete singleton_; singleton_ = nullptr; }
-	
-	static T& getSingleton(void) { assert(singleton_);  return (*singleton_); }
-	static T* getSingletonPtr(void){ return singleton_; }
-};
+		}
+
+
+		~Singleton(void) { assert(singleton_);  delete singleton_; singleton_ = nullptr; }
+
+		static T& getSingleton(void) { assert(singleton_);  return (*singleton_); }
+		static T* getSingletonPtr(void) { return singleton_; }
+	};
 
 #define KBE_SINGLETON_INIT( TYPE )							\
-template <> std::atomic<TYPE*> Singleton<TYPE>::singleton_ = nullptr; \
-template <> std::once_flag Singleton<TYPE>::init_flag;
-	
+template <>	 TYPE * Singleton< TYPE >::singleton_ = 0;	\
+
 }
 #endif // KBE_SINGLETON_H
