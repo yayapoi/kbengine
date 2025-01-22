@@ -17,8 +17,8 @@
 
 namespace KBEngine{
 
-#define OBJECT_POOL_INIT_SIZE			16
-#define OBJECT_POOL_INIT_MAX_SIZE		OBJECT_POOL_INIT_SIZE * 1024
+#define OBJECT_POOL_INIT_SIZE			16	// 对象池初始大小
+#define OBJECT_POOL_INIT_MAX_SIZE		OBJECT_POOL_INIT_SIZE * 1024	// 对象池最大大小
 
 // 每5分钟检查一次瘦身
 #define OBJECT_POOL_REDUCING_TIME_OUT	300 * stampsPerSecondD()
@@ -321,23 +321,23 @@ protected:
 	}
 
 protected:
-	OBJECTS objects_;
+	OBJECTS objects_;	// 存储对象的列表
 
-	size_t max_;
+	size_t max_;	// 对象池的最大大小
 
-	bool isDestroyed_;
+	bool isDestroyed_; // 是否已销毁
 
 	// 一些原因导致锁还是有必要的
 	// 例如：dbmgr任务线程中输出log，cellapp中加载navmesh后的线程回调导致的log输出
 	THREADMUTEX* pMutex_;
 
-	std::string name_;
+	std::string name_;	// 对象池的名称
 
-	size_t total_allocs_;
+	size_t total_allocs_;	// 总共分配的对象数
 
 	// Linux环境中，list.size()使用的是std::distance(begin(), end())方式来获得
 	// 会对性能有影响，这里我们自己对size做一个记录
-	size_t obj_count_;
+	size_t obj_count_;	// 当前对象数量
 
 	// 最后一次瘦身检查时间
 	// 如果长达OBJECT_POOL_REDUCING_TIME_OUT大于OBJECT_POOL_INIT_SIZE，则最多瘦身OBJECT_POOL_INIT_SIZE个

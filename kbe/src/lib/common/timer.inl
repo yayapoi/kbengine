@@ -17,15 +17,18 @@ TimersT<TIME_STAMP>::~TimersT()
 	this->clear();
 }
 
+// 添加一个新的定时器
 template <class TIME_STAMP>
 TimerHandle TimersT< TIME_STAMP >::add( TimeStamp startTime,
 		TimeStamp interval, TimerHandler * pHandler, void * pUser )
 {
+	// 创建一个新的 Time 对象并加入优先队列
 	Time * pTime = new Time( *this, startTime, interval, pHandler, pUser );
 	timeQueue_.push( pTime );
 	return TimerHandle( pTime );
 }
 
+// 处理定时器取消
 template <class TIME_STAMP>
 void TimersT< TIME_STAMP >::onCancel()
 {
@@ -33,13 +36,14 @@ void TimersT< TIME_STAMP >::onCancel()
 
 	// If there are too many cancelled timers in the queue (more than half),
 	// these are flushed from the queue immediately.
-
+	// 如果已取消的定时器数量超过队列的一半，则立即清理
 	if (numCancelled_ * 2 > int(timeQueue_.size()))
 	{
 		this->purgeCancelledTimes();
 	}
 }
 
+ // 清除所有定时器
 template <class TIME_STAMP>
 void TimersT< TIME_STAMP >::clear(bool shouldCallCancel)
 {
@@ -70,6 +74,7 @@ void TimersT< TIME_STAMP >::clear(bool shouldCallCancel)
 	timeQueue_ = PriorityQueue();
 }
 
+// 定义一个辅助类，用于判断定时器是否未被取消
 template <class TIME>
 class IsNotCancelled
 {
@@ -80,6 +85,7 @@ public:
 	}
 };
 
+// 清理已取消的定时器
 template <class TIME_STAMP>
 void TimersT< TIME_STAMP >::purgeCancelledTimes()
 {
@@ -103,6 +109,7 @@ void TimersT< TIME_STAMP >::purgeCancelledTimes()
 	timeQueue_.make_heap();
 }
 
+// 处理定时器触发
 template <class TIME_STAMP>
 int TimersT< TIME_STAMP >::process(TimeStamp now)
 {
@@ -139,6 +146,7 @@ int TimersT< TIME_STAMP >::process(TimeStamp now)
 	return numFired;
 }
 
+// 检查定时器句柄是否合法
 template <class TIME_STAMP>
 bool TimersT< TIME_STAMP >::legal(TimerHandle handle) const
 {
@@ -169,6 +177,7 @@ bool TimersT< TIME_STAMP >::legal(TimerHandle handle) const
 	return false;
 }
 
+// 获取下一个到期时间
 template <class TIME_STAMP>
 TIME_STAMP TimersT< TIME_STAMP >::nextExp(TimeStamp now) const
 {
@@ -181,6 +190,7 @@ TIME_STAMP TimersT< TIME_STAMP >::nextExp(TimeStamp now) const
 	return timeQueue_.top()->time() - now;
 }
 
+// 获取定时器信息
 template <class TIME_STAMP>
 bool TimersT< TIME_STAMP >::getTimerInfo( TimerHandle handle,
 					TimeStamp &			time,
@@ -239,6 +249,7 @@ TimersT< TIME_STAMP >::Time::Time( TimersBase & owner,
 {
 }
 
+// 触发定时器
 template <class TIME_STAMP>
 void TimersT< TIME_STAMP >::Time::triggerTimer()
 {
