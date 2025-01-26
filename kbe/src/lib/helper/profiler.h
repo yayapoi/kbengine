@@ -8,6 +8,7 @@
 namespace KBEngine
 {
 
+// ·ÖÎöÆ÷
 class Profiler
 {
 public:

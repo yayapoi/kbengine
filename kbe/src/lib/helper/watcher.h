@@ -14,8 +14,8 @@ namespace KBEngine
 namespace Network{
 }
 
-typedef uint16 WATCHER_ID;
-typedef uint8 WATCHER_VALUE_TYPE;
+typedef uint16 WATCHER_ID; //  监控器ID类型
+typedef uint8 WATCHER_VALUE_TYPE; //  监控器值类型
 
 #define WATCHER_VALUE_TYPE_UNKNOWN				0
 #define WATCHER_VALUE_TYPE_UINT8				1
@@ -37,6 +37,7 @@ class Watchers;
 
 /*
 	watcher基础对象
+	用于监控和记录对象状态的基类。它提供了一些方法来设置和获取对象的路径、名称、ID、值
 */
 class WatcherObject
 {
@@ -45,41 +46,51 @@ public:
 	
 	virtual ~WatcherObject();
 
-	virtual void addToInitStream(MemoryStream* s) {};
+	// 将初始化信息添加到内存流中
+    virtual void addToInitStream(MemoryStream* s) {};
 
-	virtual void addToStream(MemoryStream* s) {};
+    // 将当前信息添加到内存流中
+    virtual void addToStream(MemoryStream* s) {};
 
-	WATCHER_ID id(){ return id_; }
-	void id(WATCHER_ID i){ id_ = i; }
+    // 获取和设置ID
+    WATCHER_ID id() { return id_; }
+    void id(WATCHER_ID i) { id_ = i; }
 
-	const char* path(){ return path_.c_str(); }
-	const char* name(){ return name_.c_str(); }
+    // 获取路径和名称
+    const char* path() { return path_.c_str(); }
+    const char* name() { return name_.c_str(); }
 
-	template <class T>
-	WATCHER_VALUE_TYPE type() const{ return WATCHER_VALUE_TYPE_UNKNOWN; }
+    // 模板方法，获取值类型
+    template <class T>
+    WATCHER_VALUE_TYPE type() const { return WATCHER_VALUE_TYPE_UNKNOWN; }
 
-	template <class T>
-	void updateStream(MemoryStream* s){
-		T v;
-		(*s) >> v;
-		strval_ = StringConv::val2str(v);
-	}
+	// 更新内存流中的值
+    template <class T>
+    void updateStream(MemoryStream* s) {
+        T v;
+        (*s) >> v;
+        strval_ = StringConv::val2str(v);
+    }
 
-	void addWitness(){ numWitness_++; }
-	void delWitness(){ numWitness_--; }
+    // 增加和减少观察者数量
+    void addWitness() { numWitness_++; }
+    void delWitness() { numWitness_--; }
 
-	int32 numWitness() const{ return numWitness_; }
+    // 获取观察者数量
+    int32 numWitness() const { return numWitness_; }
 
-	const char* str() const{ return strval_.c_str(); }
-	
-	const char* getValue(){ return strval_.c_str(); }
+    // 获取字符串值
+    const char* str() const { return strval_.c_str(); }
+    
+    const char* getValue() { return strval_.c_str(); }
 
-	virtual WATCHER_VALUE_TYPE getType(){ return WATCHER_VALUE_TYPE_UNKNOWN; }
+    // 获取值类型
+    virtual WATCHER_VALUE_TYPE getType() { return WATCHER_VALUE_TYPE_UNKNOWN; }
 
 protected:
-	std::string path_, name_, strval_;
-	WATCHER_ID id_;
-	int32 numWitness_;
+	std::string path_, name_, strval_; // 路径、名称和字符串值
+    WATCHER_ID id_; // ID
+    int32 numWitness_; // 观察者数量
 };
 
 template <>
@@ -239,21 +250,25 @@ public:
 	virtual ~WatcherValue(){
 	}
 	
-	void addToInitStream(MemoryStream* s){
-		(*s) << path() << name() << id_ << type<T>() << watchVal_;
-	};
+	// 将初始化信息添加到内存流中
+    void addToInitStream(MemoryStream* s) {
+        (*s) << path() << name() << id_ << type<T>() << watchVal_;
+    }
 
-	void addToStream(MemoryStream* s){
-		(*s) << id_ << watchVal_;
-	};
+    // 将当前信息添加到内存流中
+    void addToStream(MemoryStream* s) {
+        (*s) << id_ << watchVal_;
+    }
 
-	T getValue(){ return watchVal_; }
+    // 获取值
+    T getValue() { return watchVal_; }
 
-	WATCHER_VALUE_TYPE getType(){ return type<T>(); }
+    // 获取值类型
+    WATCHER_VALUE_TYPE getType() { return type<T>(); }
 
 protected:
-	const T& watchVal_;
-	T val_;
+    const T& watchVal_; // 监视的值
+    T val_; // 值副本
 };
 
 /*
@@ -274,20 +289,24 @@ public:
 	virtual ~WatcherFunction(){
 	}
 	
-	void addToInitStream(MemoryStream* s){
-		(*s) << path() << name() << id_ << type<RETURN_TYPE>() << (*func_)();
-	};
+	// 将初始化信息添加到内存流中
+    void addToInitStream(MemoryStream* s) {
+        (*s) << path() << name() << id_ << type<RETURN_TYPE>() << (*func_)();
+    }
 
-	void addToStream(MemoryStream* s)
-	{
-		(*s) << id_ << (*func_)();
-	};
+    // 将当前信息添加到内存流中
+    void addToStream(MemoryStream* s) {
+        (*s) << id_ << (*func_)();
+    }
 
-	RETURN_TYPE getValue(){ return (*func_)(); }
-	WATCHER_VALUE_TYPE getType(){ return type<RETURN_TYPE>(); }
+    // 获取值
+    RETURN_TYPE getValue() { return (*func_)(); }
+
+    // 获取值类型
+    WATCHER_VALUE_TYPE getType() { return type<RETURN_TYPE>(); }
 
 protected:
-	FUNC func_;
+    FUNC func_; // 函数指针
 };
 
 /*
@@ -309,23 +328,30 @@ public:
 	virtual ~WatcherMethod(){
 	}
 	
-	void addToInitStream(MemoryStream* s){
-		(*s) << path() << name() << id_ << type<RETURN_TYPE>() << (obj_->*func_)();
-	};
+	// 将初始化信息添加到内存流中
+    void addToInitStream(MemoryStream* s) {
+        (*s) << path() << name() << id_ << type<RETURN_TYPE>() << (obj_->*func_)();
+    }
 
-	void addToStream(MemoryStream* s)
-	{
-		(*s) << id_ << (obj_->*func_)();
-	};
+    // 将当前信息添加到内存流中
+    void addToStream(MemoryStream* s) {
+        (*s) << id_ << (obj_->*func_)();
+    }
 
-	RETURN_TYPE getValue(){ return (obj_->*func_)(); }
-	WATCHER_VALUE_TYPE getType(){ return type<RETURN_TYPE>(); }
+    // 获取值
+    RETURN_TYPE getValue() { return (obj_->*func_)(); }
+
+    // 获取值类型
+    WATCHER_VALUE_TYPE getType() { return type<RETURN_TYPE>(); }
 
 protected:
-	FUNC func_;
-	OBJ_TYPE* obj_;
+    FUNC func_; // 成员函数指针
+    OBJ_TYPE* obj_; // 对象指针
 };
 
+/**
+ * 监视一个常量成员函数返回值的watcher
+ */
 template <class RETURN_TYPE, class OBJ_TYPE>
 class WatcherMethodConst : public WatcherObject
 {
@@ -342,22 +368,26 @@ public:
 	virtual ~WatcherMethodConst(){
 	}
 	
-	void addToInitStream(MemoryStream* s){
-		RETURN_TYPE v = (obj_->*func_)();
-		(*s) << path() << name() << id_ << type<RETURN_TYPE>() << v;
-	};
+	// 将初始化信息添加到内存流中
+    void addToInitStream(MemoryStream* s) {
+        RETURN_TYPE v = (obj_->*func_)();
+        (*s) << path() << name() << id_ << type<RETURN_TYPE>() << v;
+    }
 
-	void addToStream(MemoryStream* s)
-	{
-		(*s) << id_ << (obj_->*func_)();
-	};
+    // 将当前信息添加到内存流中
+    void addToStream(MemoryStream* s) {
+        (*s) << id_ << (obj_->*func_)();
+    }
 
-	RETURN_TYPE getValue(){ return (obj_->*func_)(); }
-	WATCHER_VALUE_TYPE getType(){ return type<RETURN_TYPE>(); }
+    // 获取值
+    RETURN_TYPE getValue() { return (obj_->*func_)(); }
+
+    // 获取值类型
+    WATCHER_VALUE_TYPE getType() { return type<RETURN_TYPE>(); }
 
 protected:
-	FUNC func_;
-	OBJ_TYPE* obj_;
+    FUNC func_; // 常量成员函数指针
+    OBJ_TYPE* obj_; // 对象指针
 };
 
 /*
@@ -371,27 +401,40 @@ public:
 	
 	void clear();
 
-	static Watchers& rootWatchers();
+	// 获取根watcher管理器
+    static Watchers& rootWatchers();
 
-	void addToStream(MemoryStream* s);
+    // 将所有watcher信息添加到内存流中
+    void addToStream(MemoryStream* s);
 
-	void readWatchers(MemoryStream* s);
-	typedef KBEUnordered_map<std::string, KBEShared_ptr< WatcherObject > > WATCHER_MAP;
+    // 从内存流中读取watcher信息
+    void readWatchers(MemoryStream* s);
+    // 定义watcher映射类型
+    typedef KBEUnordered_map<std::string, KBEShared_ptr< WatcherObject > > WATCHER_MAP;
 
-	bool addWatcher(const std::string& path, WatcherObject* pwo);
-	bool delWatcher(const std::string& name);
-	bool hasWatcher(const std::string& name);
+    // 添加watcher
+    bool addWatcher(const std::string& path, WatcherObject* pwo);
+    // 删除watcher
+    bool delWatcher(const std::string& name);
+    // 检查是否存在指定名称的watcher
+    bool hasWatcher(const std::string& name);
 
-	KBEShared_ptr< WatcherObject > getWatcher(const std::string& name);
+    // 获取指定名称的watcher
+    KBEShared_ptr< WatcherObject > getWatcher(const std::string& name);
 
-	void updateStream(MemoryStream* s);
+    // 更新内存流中的watcher信息
+    void updateStream(MemoryStream* s);
 
-	WATCHER_MAP& watcherObjs(){ return watcherObjs_; }
+    // 获取watcher映射
+    WATCHER_MAP& watcherObjs() { return watcherObjs_; }
 
 protected:
-	WATCHER_MAP watcherObjs_;
+    WATCHER_MAP watcherObjs_; // watcher映射
 };
 
+/**
+ * watcher路径管理器
+ */
 class WatcherPaths
 {
 public:
@@ -400,35 +443,51 @@ public:
 
 	void clear();
 
-	static WatcherPaths& root();
-	static bool finalise();
+	// 获取根watcher路径管理器
+    static WatcherPaths& root();
+    // 最终化watcher路径管理器
+    static bool finalise();
 
-	void addToStream(MemoryStream* s);
+    // 将所有watcher路径信息添加到内存流中
+    void addToStream(MemoryStream* s);
 
-	void readWatchers(std::string path, MemoryStream* s);
-	void readChildPaths(std::string srcPath, std::string path, MemoryStream* s);
-	void dirPath(std::string path, std::vector<std::string>& vec);
+    // 从内存流中读取watcher路径信息
+    void readWatchers(std::string path, MemoryStream* s);
+    // 读取子路径信息
+    void readChildPaths(std::string srcPath, std::string path, MemoryStream* s);
+    // 获取目录路径
+    void dirPath(std::string path, std::vector<std::string>& vec);
 
-	typedef KBEUnordered_map<std::string, KBEShared_ptr<WatcherPaths> > WATCHER_PATHS;
+    // 定义watcher路径映射类型
+    typedef KBEUnordered_map<std::string, KBEShared_ptr<WatcherPaths> > WATCHER_PATHS;
 
-	bool addWatcher(std::string path, WatcherObject* pwo);
-	bool _addWatcher(std::string path, WatcherObject* pwo);
+    // 添加watcher
+    bool addWatcher(std::string path, WatcherObject* pwo);
+    // 内部添加watcher
+    bool _addWatcher(std::string path, WatcherObject* pwo);
 
-	WatcherObject* addWatcherFromStream(std::string path, std::string name, 
-		WATCHER_ID wid, WATCHER_VALUE_TYPE wtype, MemoryStream* s);
+	// 从内存流中添加watcher
+    WatcherObject* addWatcherFromStream(std::string path, std::string name, 
+        WATCHER_ID wid, WATCHER_VALUE_TYPE wtype, MemoryStream* s);
 
-	bool delWatcher(const std::string& fullpath);
-	bool hasWatcher(const std::string& fullpath);
-	KBEShared_ptr< WatcherObject > getWatcher(const std::string& fullpath);
+    // 删除watcher
+    bool delWatcher(const std::string& fullpath);
+    // 检查是否存在指定路径的watcher
+    bool hasWatcher(const std::string& fullpath);
+    // 获取指定路径的watcher
+    KBEShared_ptr< WatcherObject > getWatcher(const std::string& fullpath);
 
-	void updateStream(MemoryStream* s);
+    // 更新内存流中的watcher路径信息
+    void updateStream(MemoryStream* s);
 
-	Watchers& watchers(){ return watchers_; }
-	WATCHER_PATHS& watcherPaths(){ return watcherPaths_; }
+    // 获取watcher管理器
+    Watchers& watchers() { return watchers_; }
+    // 获取watcher路径映射
+    WATCHER_PATHS& watcherPaths() { return watcherPaths_; }
 
 protected:
-	WATCHER_PATHS watcherPaths_;
-	Watchers watchers_;
+    WATCHER_PATHS watcherPaths_; // watcher路径映射
+    Watchers watchers_; // watcher管理器
 };
 
 /**
@@ -482,6 +541,13 @@ inline WatcherObject* addWatcher(std::string path, OBJ_TYPE* obj, RETURN_TYPE (O
 	return pwo;
 };
 
+/**
+ * 用于监视一个常量成员函数的返回值
+ * 示例：
+ * int32 AAA::func() const {}
+ * AAA a;
+ * addWatcher("func", &a, &AAA::func);
+ */
 template <class RETURN_TYPE, class OBJ_TYPE> 
 inline WatcherObject* addWatcher(std::string path, OBJ_TYPE* obj, RETURN_TYPE (OBJ_TYPE::*func)() const)
 {

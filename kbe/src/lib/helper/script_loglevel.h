@@ -12,6 +12,7 @@ namespace log4cxx
       DECLARE_LOG4CXX_LEVEL(ScriptLevel)
 
    public:
+      // 定义自定义日志级别
         enum
         {
             SCRIPT_INT = Level::INFO_INT + 1000,
@@ -33,19 +34,21 @@ namespace log4cxx
       /**
       Convert the string passed as argument to a level. If the
       conversion fails, then this method returns #DEBUG.
+      将字符串转换为日志级别。如果转换失败，则返回 #DEBUG。
       */
       static LevelPtr toLevelLS(const LogString& sArg);
 
       /**
       Convert an integer passed as argument to a level. If the
       conversion fails, then this method returns #DEBUG.
-
+      将整数转换为日志级别。如果转换失败，则返回 #DEBUG。
       */
       static LevelPtr toLevel(int val);
 
       /**
       Convert an integer passed as argument to a level. If the
       conversion fails, then this method returns the specified default.
+      将整数转换为日志级别。如果转换失败，则返回指定的默认级别。
       */
       static LevelPtr toLevel(int val, const LevelPtr& defaultLevel);
 
