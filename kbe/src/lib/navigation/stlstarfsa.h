@@ -40,6 +40,20 @@ given where due.
   and you don't do much searching, which would be O(n). Structures such as binary 
   trees can be used instead to get O(logn) access time.
 
+	使用STL实现A*算法
+	FixedSizeAllocator class
+	此类是用于对象的恒定时间O（1）内存管理器
+
+指定的类型。类型是使用模板类指定的。
+
+内存是从固定大小的缓冲区分配的，您可以在类构造函数或使用默认值。
+
+使用GetFirst和GetNext可以迭代元素一个接一个，这将是该类最常见的用法。
+
+
+我建议在需要O（1）添加和删除时使用此类
+你不需要做太多的搜索，也就是O（n）。二进制等结构
+可以使用树来获取O（logn）的访问时间。
 */
 
 #ifndef STLSTARFSA_H

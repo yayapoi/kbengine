@@ -148,11 +148,13 @@ inline float KBEVec3CalcVec2Length(const Vector3& v1, const Vector3& v2)
 	return sqrt(x*x + z*z);
 }
 
+// 将int8类型的角转换为浮点数
 inline float int82angle(KBEngine::int8 angle, bool half = false)
 {
 	return float(angle) * float((KBE_PI / (half ? 254.f : 128.f)));
 }
 
+// 将浮点数角度转换为int8类型
 inline KBEngine::int8 angle2int8(float v, bool half = false)
 {
 	KBEngine::int8 angle = 0;
@@ -175,7 +177,7 @@ struct Direction3D																										// 表示方向位置变量类型
 {
 	Direction3D():dir(0.f, 0.f, 0.f) {};
 	Direction3D(const Vector3 & v):dir(v){}
-	Direction3D(float r, float p, float y):dir(r, p, y){}
+	Direction3D(float r, float p, float y):dir(r, p, y){}	// 构造函数，接受roll, pitch, yaw
 	Direction3D(const Direction3D & v) :dir(v.dir){}
 
 	Direction3D& operator=(const Direction3D& v)
@@ -198,6 +200,7 @@ struct Direction3D																										// 表示方向位置变量类型
 
 /** 浮点数比较 */
 #define floatEqual(v1, v3) (abs(v1 - v2) < std::numeric_limits<float>::epsilon())
+// 判断两个浮点数是否几乎相等
 inline bool almostEqual(const float f1, const float f2, const float epsilon = 0.0004f)
 {
 	return fabsf( f1 - f2 ) < epsilon;
@@ -218,6 +221,7 @@ inline bool almostZero(const double d, const double epsilon = 0.0004)
 	return d < epsilon && d > -epsilon;
 }
 
+// 判断两个容器中的元素是否几乎相等
 template<typename T>
 inline bool almostEqual(const T& c1, const T& c2, const float epsilon = 0.0004f)
 {

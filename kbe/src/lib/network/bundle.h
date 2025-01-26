@@ -67,6 +67,7 @@ class Channel;
 #define DELETE_BUNDLE(obj) { Network::Bundle::reclaimPoolObject(obj); obj = NULL; }
 #define RECLAIM_BUNDLE(obj) { Network::Bundle::reclaimPoolObject(obj);}
 
+//用于处理网络数据包的类，该类包含了一些静态方法用于对象池的管理，以及一些成员变量用于存储当前处理的数据包信息。
 class Bundle : public PoolObject
 {
 public:
@@ -74,10 +75,10 @@ public:
 	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 	static ObjectPool<Bundle>& ObjPool();
 	static Bundle* createPoolObject(const std::string& logPoint);
-	static void reclaimPoolObject(Bundle* obj);
-	static void destroyObjPool();
-	virtual void onReclaimObject();
-	virtual size_t getPoolObjectBytes();
+	static void reclaimPoolObject(Bundle* obj); //  回收对象到对象池
+	static void destroyObjPool(); //  销毁对象池
+	virtual void onReclaimObject(); //  回收对象时的回调函数
+	virtual size_t getPoolObjectBytes(); //  获取对象池中对象的大小
 
 	typedef std::vector<Packet*> Packets;
 	
@@ -85,29 +86,32 @@ public:
 	Bundle(const Bundle& bundle);
 	virtual ~Bundle();
 	
-	void newMessage(const MessageHandler& msgHandler);
-	void finiMessage(bool isSend = true);
+	void newMessage(const MessageHandler& msgHandler); //  添加消息处理程序
+	void finiMessage(bool isSend = true); //  结束消息处理
 
-	void clearPackets();
+	void clearPackets(); //  清除所有包
 	
-	INLINE void pCurrMsgHandler(const Network::MessageHandler* pMsgHandler);
-	INLINE const Network::MessageHandler* pCurrMsgHandler() const;
+	INLINE void pCurrMsgHandler(const Network::MessageHandler* pMsgHandler); //  设置当前消息处理程序
+	INLINE const Network::MessageHandler* pCurrMsgHandler() const; //  获取当前消息处理程序
 
 	/**
 		计算所有包包括当前还未写完的包的总长度
 	*/
 	int32 packetsLength(bool calccurr = true);
 
+	
+	// 判断当前对象是否是一个TCP数据包
 	INLINE bool isTCPPacket() const{ return isTCPPacket_; }
+	// 设置变量 isTCPPacket_，以指示当前是否正在处理一个TCP数据包
 	INLINE void isTCPPacket(bool v){ isTCPPacket_ = v; }
 
-	void clear(bool isRecl);
+	void clear(bool isRecl); //  清除包
 	bool empty() const;
 	
-	void copy(const Bundle& bundle);
+	void copy(const Bundle& bundle); //  复制包
 
-	INLINE int32 packetMaxSize() const;
-	int packetsSize() const;
+	INLINE int32 packetMaxSize() const; //  获取最大包大小
+	int packetsSize() const; //  获取包大小
 
 	/**
 		撤销一些消息字节
@@ -118,40 +122,44 @@ public:
 		计算packetMaxSize-最后一个包的length后剩余的可用空间
 	*/
 	INLINE int32 lastPacketSpace();
+	// 判断包是否有空间
 	INLINE bool packetHaveSpace();
 	
-	INLINE Packets& packets();
-	INLINE Packet* pCurrPacket() const;
-	INLINE void pCurrPacket(Packet* p);
+	INLINE Packets& packets(); //  获取Packets对象
+	INLINE Packet* pCurrPacket() const; //  获取当前Packet指针
+	INLINE void pCurrPacket(Packet* p); //  设置当前Packet指针
 	
-	INLINE void finiCurrPacket();
+	INLINE void finiCurrPacket(); //  结束当前Packet
 
-	Packet* newPacket();
+	Packet* newPacket(); //  创建新的Packet
 	
-	INLINE void pChannel(Channel* p);
-	INLINE Channel* pChannel();
+	// 设置通道
+    INLINE void pChannel(Channel* p);
+    // 获取通道
+    INLINE Channel* pChannel();
 	
-	INLINE MessageID messageID() const;
-	INLINE void messageID(MessageID id);
+	INLINE MessageID messageID() const; //  获取MessageID
+	INLINE void messageID(MessageID id); //  设置MessageID
 	
-	INLINE int32 numMessages() const;
+	INLINE int32 numMessages() const; //  获取消息数量
 
-	INLINE void currMsgPacketCount(uint32 v);
-	INLINE uint32 currMsgPacketCount() const;
+	INLINE void currMsgPacketCount(uint32 v); //  设置当前消息的Packet数量
+	INLINE uint32 currMsgPacketCount() const; //  获取当前消息的Packet数量
 
-	INLINE void currMsgLength(MessageLength1 v);
-	INLINE MessageLength1 currMsgLength() const;
+	INLINE void currMsgLength(MessageLength1 v); //  设置当前消息的长度
+	INLINE MessageLength1 currMsgLength() const; //  获取当前消息的长度
 
-	INLINE void currMsgLengthPos(size_t v);
-	INLINE size_t currMsgLengthPos() const;
+	INLINE void currMsgLengthPos(size_t v); //  设置当前消息长度位置
+	INLINE size_t currMsgLengthPos() const; //  获取当前消息长度位置
 
+	// 调试当前消息
 	static void debugCurrentMessages(MessageID currMsgID, const Network::MessageHandler* pCurrMsgHandler, 
 		Network::Packet* pCurrPacket, Network::Bundle::Packets& packets, Network::MessageLength1 currMsgLength,
 		Network::Channel* pChannel);
 	
 protected:
-	void _calcPacketMaxSize();
-	int32 onPacketAppend(int32 addsize, bool inseparable = true);
+	void _calcPacketMaxSize(); //  计算最大包大小
+	int32 onPacketAppend(int32 addsize, bool inseparable = true); //  追加包大小
 
 public:
     Bundle &operator<<(uint8 value)
@@ -311,6 +319,7 @@ public:
 		return *this;
 	}
 
+	// 追加二进制数据
 	Bundle &appendBlob(const std::string& str)
 	{
 		return appendBlob((const uint8 *)str.data(), (ArraySize)str.size());
@@ -337,6 +346,7 @@ public:
 		return assign(str, n);
 	}
 
+	// 追加打包的 XYZ 坐标
 	Bundle &appendPackAnyXYZ(float x, float y, float z, const float epsilon = 0.5f)
 	{
 		if(epsilon > 0.f)
@@ -350,6 +360,7 @@ public:
 		return (*this);
 	}
 
+	// 追加打包的 XZ 坐标
 	Bundle &appendPackAnyXZ(float x, float z, const float epsilon = 0.5f)
     {
 		if(epsilon > 0.f)
@@ -362,22 +373,24 @@ public:
 		return (*this);
 	}
 
+	// 追加打包的 XYZ 坐标（压缩）
     Bundle &appendPackXYZ(float x, float y, float z, float minf = -256.f)
     {
-		x -= minf;
+		x -= minf; //  对x、y、z进行偏移
 		y -= minf / 2.f;
 		z -= minf;
 
 		// 最大值不要超过-256~256
 		// y 不要超过-128~128
         uint32 packed = 0;
-        packed |= ((int)(x / 0.25f) & 0x7FF);
-        packed |= ((int)(z / 0.25f) & 0x7FF) << 11;
-        packed |= ((int)(y / 0.25f) & 0x3FF) << 22;
+        packed |= ((int)(x / 0.25f) & 0x7FF); //  将x、z的值乘以0.25f，并取整，然后与0x7FF进行与运算，得到的结果写入packed的低11位
+        packed |= ((int)(z / 0.25f) & 0x7FF) << 11; //  将z的值乘以0.25f，并取整，然后与0x7FF进行与运算，得到的结果写入packed的第12位到第22位
+        packed |= ((int)(y / 0.25f) & 0x3FF) << 22; //  将y的值乘以0.25f，并取整，然后与0x3FF进行与运算，得到的结果写入packed的第23位到第32位
         *this << packed;
         return (*this);
     }
 
+	// 追加打包的 XZ 坐标（压缩）
     Bundle &appendPackXZ(float x, float z)
     {
 		MemoryStream::PackFloatXType xPackData; 
@@ -439,10 +452,10 @@ public:
 		MemoryStream::PackFloatXType yPackData; 
 		yPackData.fv = y;
 
-		yPackData.fv += yPackData.iv < 0 ? -2.f : 2.f;
+		yPackData.fv += yPackData.iv < 0 ? -2.f : 2.f; //  将yPackData的iv与0比较，如果小于0，则将yPackData的fv加上-2，否则加上2
 		uint16 data = 0;
-		data = (yPackData.uv >> 12) & 0x7fff;
- 		data |= ((yPackData.uv >> 16) & 0x8000);
+		data = (yPackData.uv >> 12) & 0x7fff; //  将yPackData的uv右移12位，并与0x7fff进行按位与操作，将结果赋值给data
+ 		data |= ((yPackData.uv >> 16) & 0x8000); //  将yPackData的uv右移16位，并与0x8000进行按位与操作，将结果赋值给data
 
 		(*this) << data;
 		return (*this);
@@ -455,10 +468,10 @@ public:
 
 		while(len > 0)
 		{
-			int32 ilen = onPacketAppend(len, false);
-			pCurrPacket_->append((uint8*)(str + addtotalsize), ilen);
-			addtotalsize += ilen;
-			len -= ilen;
+			int32 ilen = onPacketAppend(len, false); //  调用onPacketAppend函数，将len和false作为参数传入，将返回值赋值给ilen
+			pCurrPacket_->append((uint8*)(str + addtotalsize), ilen); //  将str的地址加上addtotalsize，并将ilen个字节的数据添加到pCurrPacket_中
+			addtotalsize += ilen; //  将addtotalsize加上ilen
+			len -= ilen; //  将len减去ilen
 		}
 
 		return *this;
@@ -573,6 +586,7 @@ public:
 		return *this;
     }
 
+	// 读取二进制数据
 	ArraySize readBlob(std::string& datas)
 	{
 		datas.clear();
@@ -619,22 +633,34 @@ public:
 	}
 
 private:
-	Channel* pChannel_;
-	int32 numMessages_;
+	// 通道指针
+    Channel* pChannel_;
+    // 消息数量
+    int32 numMessages_;
 
-	Packet* pCurrPacket_;
-	MessageID currMsgID_;
-	uint32 currMsgPacketCount_;
-	MessageLength1 currMsgLength_;	
-	int32 currMsgHandlerLength_;
-	size_t currMsgLengthPos_;
+    // 当前包指针
+    Packet* pCurrPacket_;
+    // 当前消息 ID
+    MessageID currMsgID_;
+    // 当前消息包的数量
+    uint32 currMsgPacketCount_;
+    // 当前消息的长度
+    MessageLength1 currMsgLength_;	
+    // 当前消息处理器的长度
+    int32 currMsgHandlerLength_;
+    // 当前消息长度的位置
+    size_t currMsgLengthPos_;
 
-	Packets packets_;
+    // 包列表
+    Packets packets_;
 
-	bool isTCPPacket_;
-	int32 packetMaxSize_;
+    // 是否为 TCP 包
+    bool isTCPPacket_;
+    // 包的最大大小
+    int32 packetMaxSize_;
 
-	const Network::MessageHandler* pCurrMsgHandler_;
+    // 当前消息处理器
+    const Network::MessageHandler* pCurrMsgHandler_;
 };
 
 }

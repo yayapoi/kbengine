@@ -13,15 +13,15 @@ namespace Network
 class Address  : public PoolObject
 {
 public:
-	static const Address NONE;
+	static const Address NONE; //  定义一个静态常量，表示一个空的地址
 
 	typedef KBEShared_ptr< SmartPoolObject< Address > > SmartPoolObjectPtr;
 	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 	static ObjectPool<Address>& ObjPool();
 	static Address* createPoolObject(const std::string& logPoint);
-	static void reclaimPoolObject(Address* obj);
-	static void destroyObjPool();
-	void onReclaimObject();
+	static void reclaimPoolObject(Address* obj); //  回收对象池对象
+	static void destroyObjPool(); //  销毁对象池
+	void onReclaimObject(); //  回收对象
 
 	virtual size_t getPoolObjectBytes()
 	{
@@ -41,21 +41,28 @@ public:
 	uint32	ip;
 	uint16	port;
 
-	int writeToString(char * str, int length) const;
+	// 将地址写入字符串
+    int writeToString(char * str, int length) const;
 
-	operator char*() const { return this->c_str(); }
+    // 转换为 C 字符串
+    operator char*() const { return this->c_str(); }
 
-	char * c_str() const;
-	const char * ipAsString() const;
-	bool isNone() const	{ return this->ip == 0; }
+    // 获取 C 字符串形式的地址
+    char * c_str() const;
+    // 获取字符串形式的 IP 地址
+    const char * ipAsString() const;
+    // 判断是否为无效地址
+    bool isNone() const { return this->ip == 0; }
 
-	static int string2ip(const char * string, u_int32_t & address);
-	static int ip2string(u_int32_t address, char * string);
+    // 将字符串转换为 IP 地址
+    static int string2ip(const char * string, u_int32_t & address);
+    // 将 IP 地址转换为字符串
+    static int ip2string(u_int32_t address, char * string);
 
 private:
-	static char s_stringBuf[2][32];
-	static int s_currStringBuf;
-	static char * nextStringBuf();
+	static char s_stringBuf[2][32]; //  字符串缓冲区
+	static int s_currStringBuf; //  当前字符串缓冲区索引
+	static char * nextStringBuf(); //  获取下一个字符串缓冲区
 };
 
 inline Address::Address():
