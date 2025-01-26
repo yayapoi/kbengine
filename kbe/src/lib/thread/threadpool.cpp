@@ -17,7 +17,7 @@ KBE_SINGLETON_INIT(KBEngine::thread::ThreadPool);
 namespace thread
 {
 
-int ThreadPool::timeout = 300;
+int ThreadPool::timeout = 300; //  设置线程池的超时时间
 
 //-------------------------------------------------------------------------------------
 THREAD_ID TPThread::createThread(void)
@@ -44,7 +44,7 @@ bool TPThread::join(void)
 	while(true)
 	{
 		++i;
-		DWORD dw = WaitForSingleObject(id(), 3000);  
+		DWORD dw = WaitForSingleObject(id(), 3000);   //  等待线程结束，等待时间为3000毫秒
 
 		switch (dw)
 		{
@@ -100,9 +100,9 @@ currentFreeThreadCount_(0),
 normalThreadCount_(0),
 isDestroyed_(false)
 {		
-	THREAD_MUTEX_INIT(threadStateList_mutex_);	
-	THREAD_MUTEX_INIT(bufferedTaskList_mutex_);
-	THREAD_MUTEX_INIT(finiTaskList_mutex_);
+	THREAD_MUTEX_INIT(threadStateList_mutex_);	 //  初始化线程状态列表的互斥锁
+	THREAD_MUTEX_INIT(bufferedTaskList_mutex_); //  初始化缓冲任务列表的互斥锁
+	THREAD_MUTEX_INIT(finiTaskList_mutex_); //  初始化完成任务列表的互斥锁
 }
 
 //-------------------------------------------------------------------------------------

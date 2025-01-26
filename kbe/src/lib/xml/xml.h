@@ -61,6 +61,7 @@ namespace KBEngine{
 #define XML_FOR_END(node)																\
 	}while((node = node->NextSibling()));												\
 			
+// XML类，用于读取和解析XML文件
 class  XML : public RefCountable
 {
 public:
@@ -71,6 +72,7 @@ public:
 	{
 	}
 
+// 构造函数，传入XML文件路径
 	XML(const char* xmlFile):
 		txdoc_(NULL),
 		rootElement_(NULL),
@@ -88,8 +90,10 @@ public:
 		}
 	}
 
+// 检查XML文件是否加载成功
 	bool isGood() const{ return isGood_; }
 
+// 打开并加载XML文件
 	bool openSection(const char* xmlFile)
 	{
 		char pathbuf[MAX_PATH];
@@ -178,6 +182,7 @@ public:
 	
 	TiXmlDocument* getTxdoc() const { return txdoc_; }
 
+// 获取节点的键名
 	std::string getKey(const TiXmlNode* node)
 	{
 		if(node == NULL)
@@ -186,6 +191,7 @@ public:
 		return strutil::kbe_trim(node->Value());
 	}
 
+// 获取节点的字符串值
 	std::string getValStr(const TiXmlNode* node)
 	{
 		const TiXmlText* ptext = node->ToText();
@@ -195,6 +201,7 @@ public:
 		return strutil::kbe_trim(ptext->Value());
 	}
 
+// 获取节点的原始值
 	std::string getVal(const TiXmlNode* node)
 	{
 		const TiXmlText* ptext = node->ToText();
@@ -239,9 +246,9 @@ public:
 	}
 
 protected:
-	TiXmlDocument* txdoc_;
-	TiXmlElement* rootElement_;
-	bool isGood_;
+	TiXmlDocument* txdoc_;	// XML文档对象
+	TiXmlElement* rootElement_;	// 根元素
+	bool isGood_;	// 是否加载成功
 
 };
 

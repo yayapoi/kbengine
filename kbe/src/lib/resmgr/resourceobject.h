@@ -18,7 +18,7 @@ public:
 	const std::string& resName(){ return resName_; }
 	uint32 flags() const{ return flags_; }
 
-	bool valid() const;
+	bool valid() const; //  判断当前对象是否有效
 
 	void update();
 
@@ -38,9 +38,9 @@ public:
 	
 	FILE* fd(){ return fd_; }
 
-	bool seek(uint32 idx, int flags = SEEK_SET);
-	uint32 read(char* buf, uint32 limit);
-	uint32 tell();
+	bool seek(uint32 idx, int flags = SEEK_SET); //  在文件中定位到指定位置
+	uint32 read(char* buf, uint32 limit); //  从文件中读取指定长度的数据到缓冲区
+	uint32 tell(); //  获取当前文件指针的位置
 
 protected:
 	FILE* fd_;

@@ -20,6 +20,7 @@ public:
 	EpollPoller(int expectedSize = 10);
 	virtual ~EpollPoller();
 
+	// 获取文件描述符
 	int getFileDescriptor() const { return epfd_; }
 
 protected:
@@ -35,6 +36,7 @@ protected:
 	virtual bool doDeregisterForWrite(int fd)
 		{ return this->doRegister(fd, false, false); }
 
+	// 处理待处理的事件。
 	virtual int processPendingEvents(double maxWait);
 
 	bool doRegister(int fd, bool isRead, bool isRegister);
