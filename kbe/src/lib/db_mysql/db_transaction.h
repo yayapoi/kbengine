@@ -8,6 +8,7 @@ class DBInterface;
 namespace mysql {
 
 /**
+ * @brief 数据库事务类，用于管理数据库事务的开始、结束和提交。
  */
 class DBTransaction
 {
@@ -15,19 +16,38 @@ public:
 	DBTransaction(DBInterface* pdbi, bool autostart = true);
 	~DBTransaction();
 	
-	void start();
-	void end();
+	/**
+     * @brief 开始事务。
+     */
+    void start();
+    /**
+     * @brief 结束事务。
+     */
+    void end();
 
-	void commit();
+    /**
+     * @brief 提交事务。
+     */
+    void commit();
 
-	bool shouldRetry() const;
+    /**
+     * @brief 检查是否需要重试事务。
+     * 
+     * @return true 需要重试，false 不需要重试
+     */
+    bool shouldRetry() const;
 
-	void pdbi(DBInterface* pdbi){ pdbi_ = pdbi; }
+    /**
+     * @brief 设置数据库接口指针。
+     * 
+     * @param pdbi 数据库接口指针
+     */
+    void pdbi(DBInterface* pdbi) { pdbi_ = pdbi; }
 	
 private:
-	DBInterface* pdbi_;
-	bool committed_;
-	bool autostart_;
+	DBInterface* pdbi_;  // 数据库接口指针
+    bool committed_;     // 是否已提交
+    bool autostart_;     // 是否自动启动事务
 };
 
 }

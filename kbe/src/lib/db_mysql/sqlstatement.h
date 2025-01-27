@@ -19,6 +19,16 @@ namespace KBEngine{
 class SqlStatement
 {
 public:
+	/**
+     * 构造函数，初始化SQL语句的基本信息。
+     *
+     * @param pdbi 数据库接口指针
+     * @param tableName 表名
+     * @param parentDBID 父表的dbid
+     * @param dbid 当前表的dbid
+     * @param tableItemDatas 表的字段信息
+     */
+	// 构造函数，初始化SqlStatement对象
 	SqlStatement(DBInterface* pdbi, std::string tableName, DBID parentDBID, DBID dbid, 
 		mysql::DBContext::DB_ITEM_DATAS& tableItemDatas) :
 	  tableItemDatas_(tableItemDatas),
@@ -55,20 +65,34 @@ public:
 		return ret;
 	}
 
+	/**
+     * 获取当前表的dbid
+     *
+     * @return 当前表的dbid
+     */
 	DBID dbid() const{ return dbid_; }
 
 protected:
-	mysql::DBContext::DB_ITEM_DATAS& tableItemDatas_;
-	std::string sqlstr_;
-	std::string tableName_;
-	DBID dbid_;
-	DBID parentDBID_;
-	DBInterface* pdbi_; 
+	mysql::DBContext::DB_ITEM_DATAS& tableItemDatas_;  // 表的字段信息
+    std::string sqlstr_;                                // SQL语句字符串
+    std::string tableName_;                             // 表名
+    DBID dbid_;                                         // 当前表的dbid
+    DBID parentDBID_;                                   // 父表的dbid
+    DBInterface* pdbi_;                                 // 数据库接口指针 
 };
 
 class SqlStatementInsert : public SqlStatement
 {
 public:
+	/**
+     * 构造函数，生成INSERT语句。
+     *
+     * @param pdbi 数据库接口指针
+     * @param tableName 表名
+     * @param parentDBID 父表的dbid
+     * @param dbid 当前表的dbid
+     * @param tableItemDatas 表的字段信息
+     */
 	SqlStatementInsert(DBInterface* pdbi, std::string tableName, DBID parentDBID, 
 		DBID dbid, mysql::DBContext::DB_ITEM_DATAS& tableItemDatas) :
 	  SqlStatement(pdbi, tableName, parentDBID, dbid, tableItemDatas)
@@ -90,7 +114,7 @@ public:
 			sqlstr1_ += ",";
 		}
 
-		mysql::DBContext::DB_ITEM_DATAS::iterator tableValIter = tableItemDatas.begin();
+		mysql::DBContext::DB_ITEM_DATAS::iterator tableValIter = tableItemDatas.begin(); //  遍历tableItemDatas
 		for(; tableValIter != tableItemDatas.end(); ++tableValIter)
 		{
 			KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA> pSotvs = (*tableValIter);
@@ -98,7 +122,7 @@ public:
 			if(dbid > 0)
 			{
 			}
-			else
+			else //  否则，将sqlkey和sqlval添加到sqlstr_和sqlstr1_中
 			{
 				sqlstr_ += pSotvs->sqlkey;
 				if(pSotvs->extraDatas.size() > 0)
@@ -111,7 +135,7 @@ public:
 			}
 		}
 		
-		if(parentDBID > 0 || sqlstr_.at(sqlstr_.size() - 1) == ',')
+		if(parentDBID > 0 || sqlstr_.at(sqlstr_.size() - 1) == ',') //  如果parentDBID大于0或者sqlstr_的最后一个字符是逗号，则删除最后一个字符
 			sqlstr_.erase(sqlstr_.size() - 1);
 
 		if(parentDBID > 0 || sqlstr1_.at(sqlstr1_.size() - 1) == ',')
@@ -125,6 +149,12 @@ public:
 	{
 	}
 
+	/**
+     * 执行INSERT语句
+     *
+     * @param pdbi 数据库接口指针（可选，默认使用构造函数中的pdbi）
+     * @return 执行结果
+     */
 	virtual bool query(DBInterface* pdbi = NULL)
 	{
 		// 没有数据更新
@@ -145,12 +175,21 @@ public:
 	}
 
 protected:
-	std::string sqlstr1_;
+	std::string sqlstr1_;	// 用于构建VALUES部分的字符串
 };
 
 class SqlStatementUpdate : public SqlStatement
 {
 public:
+	/**
+     * 构造函数，生成UPDATE语句。
+     *
+     * @param pdbi 数据库接口指针
+     * @param tableName 表名
+     * @param parentDBID 父表的dbid
+     * @param dbid 当前表的dbid
+     * @param tableItemDatas 表的字段信息
+     */
 	SqlStatementUpdate(DBInterface* pdbi, std::string tableName, DBID parentDBID, 
 		DBID dbid, mysql::DBContext::DB_ITEM_DATAS& tableItemDatas) :
 	  SqlStatement(pdbi, tableName, parentDBID, dbid, tableItemDatas)
@@ -182,12 +221,12 @@ public:
 			sqlstr_ += ",";
 		}
 
-		if(sqlstr_.at(sqlstr_.size() - 1) == ',')
+		if(sqlstr_.at(sqlstr_.size() - 1) == ',') //  如果sqlstr_的最后一个字符是逗号，则删除该字符
 			sqlstr_.erase(sqlstr_.size() - 1);
 
-		sqlstr_ += " where id=";
+		sqlstr_ += " where id="; //  拼接WHERE语句
 		
-		char strdbid[MAX_BUF];
+		char strdbid[MAX_BUF]; //  将dbid转换为字符串
 		kbe_snprintf(strdbid, MAX_BUF, "%" PRDBID, dbid);
 		sqlstr_ += strdbid;
 	}
@@ -202,6 +241,15 @@ protected:
 class SqlStatementQuery : public SqlStatement
 {
 public:
+	/**
+     * 构造函数，生成SELECT语句。
+     *
+     * @param pdbi 数据库接口指针
+     * @param tableName 表名
+     * @param parentTableDBIDs 父表的dbid列表
+     * @param dbid 当前表的dbid
+     * @param tableItemDatas 表的字段信息
+     */
 	SqlStatementQuery(DBInterface* pdbi, std::string tableName, const std::vector<DBID>& parentTableDBIDs, 
 		DBID dbid, mysql::DBContext::DB_ITEM_DATAS& tableItemDatas) :
 	  SqlStatement(pdbi, tableName, 0, dbid, tableItemDatas),
@@ -216,7 +264,7 @@ public:
 		
 		char strdbid[MAX_BUF];
 
-		if(parentTableDBIDs.size() == 0)
+		if(parentTableDBIDs.size() == 0) //  如果没有父表ID，则直接查询指定ID的数据
 		{
 			sqlstr1_ += " where id=";
 			kbe_snprintf(strdbid, MAX_BUF, "%" PRDBID, dbid);
@@ -226,7 +274,7 @@ public:
 		{
 			sqlstr_ += TABLE_PARENTID_CONST_STR",";
 
-			if(parentTableDBIDs.size() > 1)
+			if(parentTableDBIDs.size() > 1) //  如果父表ID数量大于1，则查询多个父表ID对应的数据
 			{
 				sqlstr1_ += " where " TABLE_PARENTID_CONST_STR " in(";
 				std::vector<DBID>::const_iterator iter = parentTableDBIDs.begin();
@@ -239,7 +287,7 @@ public:
 				sqlstr1_.erase(sqlstr1_.end() - 1);
 				sqlstr1_ += ")";
 			}
-			else
+			else //  如果parentTableDBIDs不为空，则将parentTableDBIDs[0]的值赋给strdbid，并将strdbid拼接到sqlstr1_中
 			{
 				sqlstr1_ += " where " TABLE_PARENTID_CONST_STR "=";
 				kbe_snprintf(strdbid, MAX_BUF, "%" PRDBID, parentTableDBIDs[0]);
@@ -267,7 +315,7 @@ public:
 	}
 
 protected:
-	std::string sqlstr1_;
+	std::string sqlstr1_;	// 用于构建FROM和WHERE部分的字符串
 };
 
 }

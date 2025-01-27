@@ -47,13 +47,13 @@ public:
 			sqlkey = NULL;
 		}
 
-		char sqlval[MAX_BUF];
-		const char* sqlkey;
-		std::string extraDatas;
+		char sqlval[MAX_BUF];       // SQL 值
+        const char* sqlkey;         // SQL 键
+        std::string extraDatas;     // 额外数据
 	};
 
-	typedef std::vector< std::pair< std::string/*tableName*/, KBEShared_ptr< DBContext > > > DB_RW_CONTEXTS;
-	typedef std::vector< KBEShared_ptr<DB_ITEM_DATA>  > DB_ITEM_DATAS;
+	typedef std::vector< std::pair< std::string/*tableName*/, KBEShared_ptr< DBContext > > > DB_RW_CONTEXTS; //  定义一个数据库读写上下文的向量，每个元素包含一个表名和一个数据库上下文指针
+	typedef std::vector< KBEShared_ptr<DB_ITEM_DATA>  > DB_ITEM_DATAS; //  定义一个数据库项数据的向量，每个元素包含一个数据库项数据指针
 
 	DBContext()
 	{
@@ -63,20 +63,20 @@ public:
 	{
 	}
 	
-	DB_ITEM_DATAS items;
-	
-	std::string tableName;
-	std::string parentTableName;
-	
-	DBID parentTableDBID;
-	DBID dbid;
-	
-	DB_RW_CONTEXTS optable;
-	
-	bool isEmpty;
-	
-	std::map<DBID, std::vector<DBID> > dbids;
-	std::map<DBID, std::pair< std::vector<std::string>::size_type, std::vector<std::string> > > results;
+	DB_ITEM_DATAS items;            // 表的字段信息
+
+    std::string tableName;          // 当前表的名称
+    std::string parentTableName;    // 父表的名称
+    
+    DBID parentTableDBID;           // 父表的dbid
+    DBID dbid;                      // 当前表的dbid
+    
+    DB_RW_CONTEXTS optable;         // 子表结构
+    
+    bool isEmpty;                   // 是否为空
+
+    std::map<DBID, std::vector<DBID> > dbids;  // 子表索引
+    std::map<DBID, std::pair< std::vector<std::string>::size_type, std::vector<std::string> > > results;  // 读操作时查询到的数据
 
 private:
 
