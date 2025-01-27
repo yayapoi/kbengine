@@ -28,18 +28,26 @@ public:
 	}
 
 	virtual ~DBTaskBase(){}
-	virtual bool process();
-	virtual bool db_thread_process() = 0;
-	virtual DBTaskBase* tryGetNextTask(){ return NULL; }
-	virtual thread::TPTask::TPTaskState presentMainThread();
+	// 处理任务的虚拟函数
+    virtual bool process();
+    // 在数据库线程中处理任务的纯虚函数
+    virtual bool db_thread_process() = 0;
+    // 尝试获取下一个任务的虚拟函数
+    virtual DBTaskBase* tryGetNextTask() { return NULL; }
+    // 在主线程中呈现任务状态的虚拟函数
+    virtual thread::TPTask::TPTaskState presentMainThread();
 
-	virtual void pdbi(DBInterface* ptr){ pdbi_ = ptr; }
+    // 设置数据库接口指针的虚拟函数
+    virtual void pdbi(DBInterface* ptr) { pdbi_ = ptr; }
 
-	uint64 initTime() const{ return initTime_; }
+    // 获取任务创建时间的函数
+    uint64 initTime() const { return initTime_; }
 
 protected:
-	DBInterface* pdbi_;
-	uint64 initTime_;
+    // 数据库接口指针
+    DBInterface* pdbi_;
+    // 任务创建时间
+    uint64 initTime_;
 };
 
 /**
@@ -50,13 +58,18 @@ class DBTaskSyncTable : public DBTaskBase
 public:
 	DBTaskSyncTable(EntityTables* pEntityTables, KBEShared_ptr<EntityTable> pEntityTable);
 	virtual ~DBTaskSyncTable();
-	virtual bool db_thread_process();
-	virtual thread::TPTask::TPTaskState presentMainThread();
+	// 在数据库线程中处理任务的函数
+    virtual bool db_thread_process();
+    // 在主线程中呈现任务状态的函数
+    virtual thread::TPTask::TPTaskState presentMainThread();
 
 protected:
-	KBEShared_ptr<EntityTable> pEntityTable_;
-	bool success_;
-	EntityTables* pEntityTables_;
+    // 实体表的智能指针
+    KBEShared_ptr<EntityTable> pEntityTable_;
+    // 操作是否成功的标志
+    bool success_;
+    // 实体表集合的指针
+    EntityTables* pEntityTables_;
 };
 
 
