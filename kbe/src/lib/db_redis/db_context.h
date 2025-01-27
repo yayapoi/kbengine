@@ -11,6 +11,7 @@ namespace KBEngine {
 namespace redis { 
 
 /**
+ * 管理数据库读写操作的上下文信息
 	读写删操作时会用到，包含取到或待写入的各种信息。
 
 	dbid：如果是主表就是实体的dbid，子表就是当前查询的dbid
@@ -42,13 +43,13 @@ public:
 	*/
 	struct DB_ITEM_DATA
 	{
-		char sqlval[MAX_BUF];
-		const char* sqlkey;
-		std::string extraDatas;
+		char sqlval[MAX_BUF];      // SQL 值
+        const char* sqlkey;        // SQL 键
+        std::string extraDatas;    // 额外数据
 	};
 
-	typedef std::vector< std::pair< std::string/*tableName*/, KBEShared_ptr< DBContext > > > DB_RW_CONTEXTS;
-	typedef std::vector< KBEShared_ptr<DB_ITEM_DATA>  > DB_ITEM_DATAS;
+	typedef std::vector< std::pair< std::string/*tableName*/, KBEShared_ptr< DBContext > > > DB_RW_CONTEXTS; //  存储数据库读写上下文
+	typedef std::vector< KBEShared_ptr<DB_ITEM_DATA>  > DB_ITEM_DATAS; //  存储数据库项数据
 
 	DBContext()
 	{
@@ -58,21 +59,21 @@ public:
 	{
 	}
 	
-	DB_ITEM_DATAS items;
-	
-	std::string tableName;
-	std::string parentTableName;
-	
-	DBID parentTableDBID;
-	DBID dbid;
-	
-	DB_RW_CONTEXTS optable;
-	
-	bool isEmpty;
-	
-	std::map<DBID, std::vector<DBID> > dbids;
-	std::vector< std::string >results;
-	std::vector< std::string >::size_type readresultIdx;
+	DB_ITEM_DATAS items;           // 表的字段信息
+
+    std::string tableName;         // 当前表的名称
+    std::string parentTableName;   // 父表的名称
+
+    DBID parentTableDBID;          // 父表的 dbid
+    DBID dbid;                     // 当前表的 dbid
+
+    DB_RW_CONTEXTS optable;        // 子表结构
+
+    bool isEmpty;                  // 标记是否为空
+
+    std::map<DBID, std::vector<DBID> > dbids;  // 子表索引
+    std::vector< std::string > results;        // 读操作时查询到的数据
+    std::vector< std::string >::size_type readresultIdx;  // 读结果索引
 
 private:
 

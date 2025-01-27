@@ -35,6 +35,11 @@ class DBException;
 	tbl_Account_xxx_values:3:1 = val
 	tbl_Account_xxx_values:3:2 = val
 	tbl_Account_xxx_values:3:3 = val	
+
+	数据库接口类，用于与Redis数据库进行交互
+ * 
+ * 该类继承自DBInterface，提供了与Redis数据库交互的具体实现。
+ * 包括连接管理、查询、事务处理等功能。
 */
 class DBInterfaceRedis : public DBInterface
 {
@@ -42,20 +47,52 @@ public:
 	DBInterfaceRedis(const char* name);
 	virtual ~DBInterfaceRedis();
 
+	/**
+     * @brief 初始化数据库接口
+     * 
+     * @param pdbi 数据库接口指针
+     * @return 成功返回true，失败返回false
+     */
 	static bool initInterface(DBInterface* pdbi);
 	
-	bool ping(redisContext* pRedisContext = NULL);
-	
-	void inTransaction(bool value)
-	{
-		KBE_ASSERT(inTransaction_ != value);
-		inTransaction_ = value;
-	}
+	/**
+     * @brief 检查与Redis服务器的连接
+     * 
+     * @param pRedisContext Redis连接上下文，默认为NULL
+     * @return 成功返回true，失败返回false
+     */
+    bool ping(redisContext* pRedisContext = NULL);
+    
+    /**
+     * @brief 设置是否在事务中
+     * 
+     * @param value 是否在事务中
+     */
+    void inTransaction(bool value)
+    {
+        KBE_ASSERT(inTransaction_ != value);
+        inTransaction_ = value;
+    }
 
-	redisContext* context()				{ return pRedisContext_; }
-	
-	bool hasLostConnection() const		{ return hasLostConnection_; }
-	void hasLostConnection( bool v )	{ hasLostConnection_ = v; }
+	/**
+     * @brief 获取Redis连接上下文
+     * 
+     * @return Redis连接上下文指针
+     */
+    redisContext* context() { return pRedisContext_; }
+    
+    /**
+     * @brief 检查是否失去连接
+     * 
+     * @return 如果失去连接返回true，否则返回false
+     */
+    bool hasLostConnection() const { return hasLostConnection_; }
+    /**
+     * @brief 设置是否失去连接
+     * 
+     * @param v 是否失去连接
+     */
+    void hasLostConnection(bool v) { hasLostConnection_ = v; }
 	
 	/**
 		检查环境
@@ -92,10 +129,23 @@ public:
 	bool query(const std::string& cmd, redisReply** pRedisReply, bool printlog = true);
 	bool query(bool printlog, const char* format, ...);
 	bool queryAppend(bool printlog, const char* format, ...);
+	// 获取查询回复
 	bool getQueryReply(redisReply **pRedisReply);
 	
-	void write_query_result(redisReply* pRedisReply, MemoryStream * result);
-	void write_query_result_element(redisReply* pRedisReply, MemoryStream * result);
+	/**
+     * @brief 将查询结果写入MemoryStream
+     * 
+     * @param pRedisReply 查询回复
+     * @param result 存储结果的MemoryStream指针
+     */
+    void write_query_result(redisReply* pRedisReply, MemoryStream * result);
+    /**
+     * @brief 将查询结果的元素写入MemoryStream
+     * 
+     * @param pRedisReply 查询回复
+     * @param result 存储结果的MemoryStream指针
+     */
+    void write_query_result_element(redisReply* pRedisReply, MemoryStream * result);
 		
 	/**
 		返回这个接口的描述
@@ -141,9 +191,9 @@ public:
 	virtual bool processException(std::exception & e);
 	
 protected:
-	redisContext* pRedisContext_;
-	bool hasLostConnection_;
-	bool inTransaction_;	
+	redisContext* pRedisContext_;  // Redis连接上下文
+    bool hasLostConnection_;       // 是否失去连接
+    bool inTransaction_;           // 是否在事务中
 };
 
 

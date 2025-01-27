@@ -24,23 +24,24 @@ class DBUtil;
 class DBInterface
 {
 public:
+	// 数据库操作状态枚举
 	enum DB_OP_STATE
 	{
-		DB_OP_READ,
-		DB_OP_WRITE,
+		DB_OP_READ,  // 读操作
+		DB_OP_WRITE, // 写操作
 	};
 
 	friend class DBUtil;
 
 	DBInterface(const char* name) :
-	db_port_(3306),
-	db_numConnections_(1),
-	lastquery_()
+	db_port_(3306),	// 默认数据库端口为 3306
+	db_numConnections_(1),	// 默认最大连接数为 1
+	lastquery_()	// 初始化最后一次查询描述为空字符串
 	{
-		strncpy(name_, name, MAX_NAME - 1);
+		strncpy(name_, name, MAX_NAME - 1);	// 复制数据库接口名称
 		int dbIndex = g_kbeSrvConfig.dbInterfaceName2dbInterfaceIndex(this->name());
-		KBE_ASSERT(dbIndex >= 0);
-		dbIndex_ = dbIndex;
+		KBE_ASSERT(dbIndex >= 0);	// 断言数据库索引有效
+		dbIndex_ = dbIndex;	// 设置数据库索引
 	};
 
 	virtual ~DBInterface()
@@ -62,6 +63,7 @@ public:
 		与某个数据库关联
 	*/
 	virtual bool attach(const char* databaseName = NULL) = 0;
+	// 与数据库断开连接
 	virtual bool detach() = 0;
 
 	/**
@@ -166,19 +168,29 @@ public:
 	DBUtil();
 	~DBUtil();
 	
+	// 初始化
 	static bool initialize();
+	// 清理
 	static void finalise();
+	// 初始化监视器
 	static bool initializeWatcher();
 
+	// 初始化线程
 	static bool initThread(const std::string& dbinterfaceName);
+	// 结束线程
 	static bool finiThread(const std::string& dbinterfaceName);
 
+	// 创建数据库接口
 	static DBInterface* createInterface(const std::string& name, bool showinfo = true);
+	// 获取账户脚本名称
 	static const char* accountScriptName();
+	// 初始化接口
 	static bool initInterface(DBInterface* pdbi);
 
+	// 处理主时钟
 	static void handleMainTick();
 
+	// 线程池映射类型
 	typedef KBEUnordered_map<std::string, thread::ThreadPool*> DBThreadPoolMap;
 	static thread::ThreadPool* pThreadPool(const std::string& name)
 	{ 
@@ -190,6 +202,7 @@ public:
 	}
 
 private:
+	// 线程池映射
 	static DBThreadPoolMap pThreadPoolMaps_;
 };
 

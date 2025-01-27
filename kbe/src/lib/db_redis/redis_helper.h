@@ -12,6 +12,9 @@
 
 namespace KBEngine{ 
 
+/**
+ * @brief RedisHelper 类提供了一系列静态方法，用于与 Redis 数据库进行交互。
+ */
 class RedisHelper
 {
 public:
@@ -23,12 +26,27 @@ public:
 	{
 	}
 
+	/**
+     * @brief 设置 Redis 键的过期时间
+     * 
+     * @param pdbi 指向 DBInterfaceRedis 对象的指针
+     * @param key 要设置过期时间的键
+     * @param secs 过期时间（秒）
+     * @param printlog 是否打印日志
+     * @return 成功返回 true，失败返回 false
+     */
 	static bool expireKey(DBInterfaceRedis* pdbi, const std::string& key, int secs, bool printlog = true)
 	{
 		if (!pdbi->query(printlog, "EXPIRE %s %d", key.c_str(), secs))
 			return false;
 	}
 	
+	/**
+     * @brief 检查 Redis 回复是否为数组类型，并且所有元素都是整数或字符串
+     * 
+     * @param pRedisReply 指向 redisReply 对象的指针
+     * @return 如果所有元素都是整数或字符串，返回 true；否则返回 false
+     */
 	static bool check_array_results(redisReply* pRedisReply)
 	{
 		for(size_t j = 0; j < pRedisReply->elements; ++j) 
@@ -43,6 +61,14 @@ public:
 		return true;
 	}
 	
+	/**
+     * @brief 检查 Redis 中是否存在指定的表
+     * 
+     * @param pdbi 指向 DBInterfaceRedis 对象的指针
+     * @param name 表名
+     * @param printlog 是否打印日志
+     * @return 如果存在指定的表，返回 true；否则返回 false
+     */
 	static bool hasTable(DBInterfaceRedis* pdbi, const std::string& name, bool printlog = true)
 	{
 		redisReply* pRedisReply = NULL;
@@ -65,6 +91,14 @@ public:
 		return size > 0;
 	}
 	
+	/**
+     * @brief 删除 Redis 中的表
+     * 
+     * @param pdbi 指向 DBInterfaceRedis 对象的指针
+     * @param tableName 表名
+     * @param printlog 是否打印日志
+     * @return 成功删除表返回 true，失败返回 false
+     */
 	static bool dropTable(DBInterfaceRedis* pdbi, const std::string& tableName, bool printlog = true)
 	{
 		uint64 index = 0;
@@ -110,6 +144,15 @@ public:
 		return true;
 	}
 	
+	/**
+     * @brief 删除 Redis 表中的指定项
+     * 
+     * @param pdbi 指向 DBInterfaceRedis 对象的指针
+     * @param tableName 表名
+     * @param itemName 要删除的项名
+     * @param printlog 是否打印日志
+     * @return 成功删除项返回 true，失败返回 false
+     */
 	static bool dropTableItem(DBInterfaceRedis* pdbi, const std::string& tableName, 
 		const std::string& itemName, bool printlog = true)
 	{

@@ -10,6 +10,7 @@ namespace KBEngine{
 class RedisWatcher
 {
 public:
+	//  ÷¥––≤È—Ø√¸¡Ó
 	static void querystatistics(const char* strCommand, uint32 size);
 	static void initializeWatcher();
 };
